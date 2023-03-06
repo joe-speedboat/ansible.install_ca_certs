@@ -1,0 +1,9 @@
+---
+# tasks file for joe-speedboat.install_ca_certs
+
+- name: 'windows : include tasks to install custom CA certificates'
+  include_tasks: Windows/certificate.yml
+  with_items:
+    - '{{ ca_certificates_files }}'
+  loop_control:
+    loop_var: ca_certificates_loop_install_item

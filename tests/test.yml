@@ -1,9 +1,51 @@
-#!/usr/bin/ansible-playbook 
 ---
-- name: joe-speedboat.template Setup
-  hosts: localhost
+- name: Role Testing
+  hosts: all
   vars:
-    mandatory_var: mandatory-value
+    ca_certificates_files:
+      - name: Bitbull-Test-CA
+        content: |
+          -----BEGIN CERTIFICATE-----
+          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
+          EXo/QS2Z4KLoHfwJNvGP5IQ=
+          -----END CERTIFICATE-----
   roles:
-    - joe-speedboat.template
+    - joe-speedboat.install_ca_certs
+  tasks:
+  - name: search installed CA Bitbull-Test-CA
+    shell: |
+      grep ID_LIKE= /etc/os-release | grep -q debian && CAF=/etc/ssl/certs/ca-certificates.crt
+      grep ID_LIKE= /etc/os-release | grep -q rhel && CAF=/etc/pki/tls/certs/ca-bundle.crt
+      awk -v cmd='openssl x509 -noout -subject' '/BEGIN/{close(cmd)};{print | cmd}' < $CAF 2>/dev/null | grep Bitbull-Test-CA 
+    register: cmd
+    failed_when: cmd.failed
+  - name: debug output
+    debug: var=cmd.stdout_lines
 ...

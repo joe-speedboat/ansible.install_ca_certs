@@ -39,13 +39,16 @@
   roles:
     - joe-speedboat.install_ca_certs
   tasks:
-  - name: search installed CA Bitbull-Test-CA
-    shell: |
-      grep ID_LIKE= /etc/os-release | grep -q debian && CAF=/etc/ssl/certs/ca-certificates.crt
-      grep ID_LIKE= /etc/os-release | grep -q rhel && CAF=/etc/pki/tls/certs/ca-bundle.crt
-      awk -v cmd='openssl x509 -noout -subject' '/BEGIN/{close(cmd)};{print | cmd}' < $CAF 2>/dev/null | grep Bitbull-Test-CA 
-    register: cmd
-    failed_when: cmd.failed
-  - name: debug output
-    debug: var=cmd.stdout_lines
+  - name: test linux certs
+    block:
+    - name: search installed CA Bitbull-Test-CA
+      shell: |
+        grep ID_LIKE= /etc/os-release | grep -q debian && CAF=/etc/ssl/certs/ca-certificates.crt
+        grep ID_LIKE= /etc/os-release | grep -q rhel && CAF=/etc/pki/tls/certs/ca-bundle.crt
+        awk -v cmd='openssl x509 -noout -subject' '/BEGIN/{close(cmd)};{print | cmd}' < $CAF 2>/dev/null | grep Bitbull-Test-CA 
+      register: cmd
+      failed_when: cmd.failed
+    - name: debug output
+      debug: var=cmd.stdout_lines
+    when: ansible_system == "Linux"
 ...

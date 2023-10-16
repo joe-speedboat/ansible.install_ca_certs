@@ -43,8 +43,9 @@
     block:
     - name: search installed CA Bitbull-Test-CA
       shell: |
-        grep ID_LIKE= /etc/os-release | grep -q debian && CAF=/etc/ssl/certs/ca-certificates.crt
-        grep ID_LIKE= /etc/os-release | grep -q rhel && CAF=/etc/pki/tls/certs/ca-bundle.crt
+        test -f /etc/ssl/certs/ca-certificates.crt && CAF=/etc/ssl/certs/ca-certificates.crt
+        test -f /etc/pki/tls/certs/ca-bundle.crt && CAF=/etc/pki/tls/certs/ca-bundle.crt
+        test -f  /etc/ssl/certs/ca-bundle.trust.crt && CAF=/etc/ssl/certs/ca-bundle.trust.crt
         awk -v cmd='openssl x509 -noout -subject' '/BEGIN/{close(cmd)};{print | cmd}' < $CAF 2>/dev/null | grep Bitbull-Test-CA 
       register: cmd
       failed_when: cmd.failed

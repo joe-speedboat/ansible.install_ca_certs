@@ -1,0 +1,20 @@
+# meta/main.yml
+---
+galaxy_info:
+  author: Chris Ruettimann
+  role_name: install_ca_certs
+  namespace: joe-speedboat
+  description: Install CA Certs on Linux Systems
+  min_ansible_version: 2.18
+  license: GPLv3
+  platforms:
+  - name: EL
+    versions:
+    - 8
+    - 9
+    - 10
+  galaxy_tags: []
+
+# We don't use dependencies in here anymore
+dependencies: []
+...

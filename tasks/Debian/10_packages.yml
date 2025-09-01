@@ -1,0 +1,14 @@
+---
+- name: Install ca-certificates package on Debian/Ubuntu
+  apt:
+    name: 
+    - ca-certificates
+    - openssl
+    state: present
+    update_cache: yes
+- name: Ensure trust directory exists (Debian/Ubuntu)
+  file:
+    path: /usr/local/share/ca-certificates
+    state: directory
+    mode: 0755
+...

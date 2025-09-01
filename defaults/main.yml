@@ -1,0 +1,20 @@
+# defaults/main.yml
+---
+# Here belong all variables, that can be changed by a vars-file,
+# a playbook or a include.
+
+# List of CA certificates to install.
+# Each list item can be either:
+#  - A string path/URL, or 
+#  - A dictionary with keys:
+#       src: <URL or local file path to the certificate in PEM format>
+#       dest_name: <Optional custom filename for the certificate on the target (should end with .crt)>
+# Example:
+# ca_certificates:
+#   - src: "my-ca.crt"                    # local file from roles files folder (will be copied)
+#   - src: "/path/to/my-ca.crt"           # local file (will be copied)
+#   - src: "https://example.com/ca.pem"   # remote file (will be downloaded), 
+#     dest_name: "example-ca.crt"         # stored as example-ca.crt on target
+ca_certificates: []
+
+...

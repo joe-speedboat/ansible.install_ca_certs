@@ -1,0 +1,32 @@
+#!/usr/bin/ansible-playbook 
+---
+- name: Demo Cert Rollout and validation
+  hosts: all
+  gather_facts: True
+  become: True
+  vars:
+     ca_certificates:
+     - "ca_demo.crt" 
+  roles:
+    - joe-speedboat.install_ca_certs
+  post_tasks:
+  - name: Verify Linux CA certs
+    block:
+    - name: search installed CA
+      shell: |
+        CA_NAME='Bitbull-CA.*Test-Auth'
+        test -f /etc/ssl/certs/ca-certificates.crt && CAF=/etc/ssl/certs/ca-certificates.crt
+        test -f /etc/pki/tls/certs/ca-bundle.crt && CAF=/etc/pki/tls/certs/ca-bundle.crt
+        test -f  /etc/ssl/certs/ca-bundle.trust.crt && CAF=/etc/ssl/certs/ca-bundle.trust.crt
+        awk -v cmd='openssl x509 -noout -subject' '/BEGIN/{close(cmd)};{print | cmd}' < $CAF 2>/dev/null | egrep "$CA_NAME"
+      register: cmd
+      failed_when: cmd.failed
+    - name: debug output
+      debug: var=cmd.stdout_lines
+    - name: remove used demo ca
+      shell: |
+        test -f /usr/local/share/ca-certificates/ca_demo.* && rm -fv /usr/local/share/ca-certificates/ca_demo.*
+        test -f /etc/pki/ca-trust/source/anchors/ca_demo.* && rm -fv /etc/pki/ca-trust/source/anchors/ca_demo.*
+        update-ca-certificates || update-ca-trust
+    when: ansible_system == "Linux"
+...

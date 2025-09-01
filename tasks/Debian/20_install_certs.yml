@@ -1,0 +1,59 @@
+---
+# Install CA certificates on Debian/Ubuntu
+
+- name: Copy CA certificate from URL (Debian/Ubuntu)
+  vars:
+    _src: "{{ (item.src if (item is mapping) else item) }}"
+    _is_url: "{{ _src is match('^https?://') }}"
+    _raw_name: "{{ (item.dest_name if (item is mapping and item.dest_name is defined) else (_src | basename)) }}"
+    _clean_name: "{{ _raw_name | trim | regex_replace('[\\r\\n\\t]+', '') | regex_replace('/+$','') }}"
+    _dest_name: >-
+      {{
+        (_clean_name is match('(?i).*\\.crt$'))
+        | ternary(
+            _clean_name,
+            (
+              (_clean_name is match('(?i).*\.(pem|cer)$'))
+              | ternary((_clean_name | regex_replace('(?i)\.(pem|cer)$', '.crt')),
+                        (_clean_name ~ '.crt'))
+            )
+          )
+      }}
+  get_url:
+    url: "{{ _src }}"
+    dest: "/usr/local/share/ca-certificates/{{ _dest_name }}"
+    owner: root
+    group: root
+    mode: '0644'
+  loop: "{{ ca_certificates }}"
+  when: _is_url
+  notify: "Update CA certificates (Debian)"
+
+- name: Copy CA certificate from local file (Debian/Ubuntu)
+  vars:
+    _src: "{{ (item.src if (item is mapping) else item) }}"
+    _is_url: "{{ _src is match('^https?://') }}"
+    _raw_name: "{{ (item.dest_name if (item is mapping and item.dest_name is defined) else (_src | basename)) }}"
+    _clean_name: "{{ _raw_name | trim | regex_replace('[\\r\\n\\t]+', '') | regex_replace('/+$','') }}"
+    _dest_name: >-
+      {{
+        (_clean_name is match('(?i).*\\.crt$'))
+        | ternary(
+            _clean_name,
+            (
+              (_clean_name is match('(?i).*\.(pem|cer)$'))
+              | ternary((_clean_name | regex_replace('(?i)\.(pem|cer)$', '.crt')),
+                        (_clean_name ~ '.crt'))
+            )
+          )
+      }}
+  copy:
+    src: "{{ _src }}"
+    dest: "/usr/local/share/ca-certificates/{{ _dest_name }}"
+    owner: root
+    group: root
+    mode: '0644'
+  loop: "{{ ca_certificates }}"
+  when: not _is_url
+  notify: "Update CA certificates (Debian)"
+

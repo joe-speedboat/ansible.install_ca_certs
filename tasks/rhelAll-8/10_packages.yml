@@ -1,0 +1,26 @@
+---
+- name: EOL message
+  debug:
+    msg:
+    - "RHEL 8 based OS have only python3.6 base support"
+    - "       So dnf and other modules will fail with ansible core >= 2.16"
+    - "       We workaround with shell cmd to provide working tasks for rhel8"
+    - "       https://docs.ansible.com/ansible/latest/reference_appendices/release_and_maintenance.html"
+    - "       https://github.com/ansible/ansible/issues/83357#issuecomment-2150254754"
+
+- name: Install required packages if not already installed (dnf)
+  ansible.builtin.command: "dnf -y install ca-certificates openssl"
+  register: result
+  changed_when: "'Nothing to do.' not in result.stdout"
+  until: result is not failed
+
+- name: print results
+  debug:
+    var: result
+
+- name: Ensure trust directory exists (RedHat)
+  file:
+    path: /etc/pki/ca-trust/source/anchors
+    state: directory
+    mode: 0755
+...

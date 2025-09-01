@@ -17,6 +17,7 @@
 - name: print results
   debug:
     var: result
+    verbosity: 2
 
 - name: Ensure trust directory exists (RedHat)
   file:
